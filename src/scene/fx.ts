@@ -6,4 +6,5 @@ export const fx = {
   particleSize: 1,
   particleOpacity: 0.55,
   canFade: 1,
+  screens: 0,
 }
