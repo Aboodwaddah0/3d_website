@@ -7,8 +7,9 @@
   --cyan: #6be2ff;
   --text: #f4f2ec;
   --text-dim: rgba(244, 242, 236, 0.62);
-  --font-display: 'Lalezar', 'Bebas Neue', system-ui, sans-serif;
-  --font-body: 'Lalezar', system-ui, sans-serif;
+  --font-display: 'Marhey', system-ui, sans-serif;
+  --font-body: 'Cairo', system-ui, sans-serif;
+  --font-latin: 'Ubuntu', system-ui, sans-serif;
 }
 
 * {
@@ -102,7 +103,7 @@ body::-webkit-scrollbar-thumb {
 }
 
 .nav-logo {
-  font-family: 'Bebas Neue', var(--font-display);
+  font-family: var(--font-latin);
   font-weight: 700;
   font-size: 26px;
   letter-spacing: 0.06em;
@@ -201,7 +202,7 @@ section {
 }
 
 .hero-title {
-  font-family: 'Bebas Neue', var(--font-display);
+  font-family: var(--font-latin);
   font-weight: 700;
   font-size: clamp(88px, 17vw, 260px);
   line-height: 0.9;
@@ -400,13 +401,13 @@ section {
 /* content keeps to the start side — the can rides the opposite rail */
 .brand-head {
   max-width: 1020px;
-  margin: 0 0 9vh;
-  text-align: right;
+  margin: 0 auto 9vh;
+  text-align: center;
 }
 
 .brand-video-frame {
   width: min(1020px, 100%);
-  margin: 0;
+  margin: 0 auto;
   border-radius: 28px;
   overflow: hidden;
   box-shadow: 0 40px 120px rgba(0, 0, 0, 0.7), 0 0 80px rgba(245, 200, 76, 0.08);
@@ -430,7 +431,7 @@ section {
 }
 
 .brand-gallery {
-  margin: 8vh 0 0;
+  margin: 8vh auto 0;
   width: min(1020px, 100%);
   display: grid;
   grid-template-columns: 1.35fr 1fr;
@@ -505,7 +506,7 @@ section {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  font-family: 'Bebas Neue', var(--font-display);
+  font-family: var(--font-latin);
 }
 
 .reveal-sub {
@@ -556,7 +557,7 @@ footer {
 }
 
 footer .foot-logo {
-  font-family: 'Bebas Neue', var(--font-display);
+  font-family: var(--font-latin);
   font-weight: 700;
   font-size: 18px;
   color: var(--text);
@@ -566,6 +567,27 @@ footer .foot-logo {
 
 footer .foot-logo b {
   color: var(--gold);
+}
+
+/* ---------- energy line ---------- */
+
+.energy-line-wrap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+  z-index: 3;
+  overflow: visible;
+}
+
+.energy-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
 }
 
 /* ---------- responsive ---------- */

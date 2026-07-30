@@ -3,15 +3,16 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Lenis from 'lenis'
 import Experience from './scene/Experience'
+import EnergyLine from './scene/EnergyLine'
 import { FLAVORS, sceneStore, type FlavorId } from './store'
 
 gsap.registerPlugin(ScrollTrigger)
 
 const INGREDIENTS = [
-  { num: '٠١', name: 'كافيين طبيعي', desc: 'طاقة نظيفة من مصادر نباتية. تركيز حاد بدون انهيار — مصمم لجلسات طويلة.' },
-  { num: '٠٢', name: 'غوارانا وجنسنغ', desc: 'منحنى طاقة بطيء الاحتراق من تركيبة ميدنايت بيري. تحمّل مُضاعف.' },
-  { num: '٠٣', name: 'فيتامين ب المركب', desc: 'ب٦ وب١٢ يحركان أيض الطاقة الطبيعي، يحولان الوقود إلى زخم صافٍ.' },
-  { num: '٠٤', name: 'خالٍ من السكر', desc: 'تركيبة أداء. نكهة كاملة، بدون تنازل — قوة لا تثقل عليك أبداً.' },
+  { num: '٠١', name: 'كافيين طبيعي', desc: '٢٠٠ ملغ من الكافيين المستخلص من حبوب البن الخضراء، يمنح يقظة تدوم حتى ٦ ساعات.' },
+  { num: '٠٢', name: 'غوارانا وجنسنغ', desc: 'الغوارانا يطلق الكافيين تدريجياً، والجنسنغ يدعم التحمّل البدني والذهني.' },
+  { num: '٠٣', name: 'فيتامين ب المركب', desc: 'ب٦ وب١٢ يساعدان الجسم على تحويل الغذاء إلى طاقة ودعم وظائف الجهاز العصبي.' },
+  { num: '٠٤', name: 'خالٍ من السكر', desc: 'محلّى بالسكرالوز — صفر سعرات من السكر، مع الحفاظ على الطعم الكامل.' },
 ]
 
 export default function App() {
@@ -75,8 +76,8 @@ export default function App() {
         // swapped by the time the copy is in front of the reader
         ScrollTrigger.create({
           trigger: block,
-          start: 'top 75%',
-          end: 'bottom 75%',
+          start: 'top 50%',
+          end: 'bottom 50%',
           onEnter: () => sceneStore.setFlavor(flavor),
           onEnterBack: () => sceneStore.setFlavor(flavor),
         })
@@ -159,12 +160,14 @@ export default function App() {
 
       <nav className="nav">
         <a className="nav-logo" href="#" onClick={(e) => { e.preventDefault(); scrollTo('.hero') }}>
-          <span className="crown">♛</span>Bos<b>S</b>
+          <span className="crown">♛</span><span>Bos<b>S</b></span>
         </a>
         <button className="nav-cta" onClick={() => scrollTo('.reveal')}>احصل على BosS</button>
       </nav>
 
       <main>
+        <EnergyLine />
+
         {/* -------- Section 1 · Hero -------- */}
         <section className="hero" id="hero">
           <div className="hero-inner">
@@ -182,10 +185,10 @@ export default function App() {
         <section className="story" id="story">
           <div className="story-head">
             <p className="kicker" data-reveal>المجموعة</p>
-            <h2 className="headline" data-reveal>ثلاثة تيجان.<br />عرش واحد.</h2>
+            <h2 className="headline" data-reveal>ثلاث نكهات.<br />تركيبة واحدة.</h2>
             <p className="body-copy" data-reveal style={{ marginTop: 26 }}>
-              كل علبة BosS مصممة كمنتج رائد — تركيبة فاخرة، نكهة دقيقة،
-              ولمسة نهائية تملك المكان قبل أن تفتحها.
+              كل علبة BosS تحتوي على ٢٠٠ ملغ كافيين طبيعي، فيتامينات ب المركبة،
+              وخالية من السكر — مصممة لتمنحك طاقة مستمرة بدون انهيار.
             </p>
           </div>
 
@@ -195,7 +198,7 @@ export default function App() {
                 <p className="flavor-index" data-reveal>{String(i + 1).padStart(2, '0')} / 03</p>
                 <h3 className="flavor-name" data-reveal style={{ color: f.accent }}>{f.name}</h3>
                 <p className="flavor-sub" data-reveal>{f.sub}</p>
-                <p className="flavor-tagline" data-reveal>{f.tag}. ٢٥٠ مل من النية الصافية.</p>
+                <p className="flavor-tagline" data-reveal>{f.tag}. ٢٥٠ مل.</p>
                 <div className="flavor-card">
                   <img src={f.texture} alt={`BosS ${f.name} can`} loading="lazy" />
                 </div>
@@ -210,8 +213,8 @@ export default function App() {
             <p className="kicker" data-reveal>داخل العلبة</p>
             <h2 className="headline" data-reveal>طاقة<br />مهندسة</h2>
             <p className="body-copy" data-reveal style={{ margin: '26px auto 0' }}>
-              تركيبة أداء مبنية حول تحفيز نظيف — شاهد الشحنة تتراكم
-              حول العلبة أثناء التمرير.
+              مكونات مختارة لدعم الأداء الذهني والبدني — كافيين طبيعي،
+              غوارانا، جنسنغ، وفيتامينات ب، بدون سكر مضاف.
             </p>
           </div>
           <div className="ing-grid">
@@ -253,9 +256,9 @@ export default function App() {
         <section className="reveal" id="reveal">
           <div className="reveal-sticky">
             <h2 className="reveal-title">
-              <span className="gold">BosS</span> — شحن<br />لحظتك
+              <span className="gold">BosS</span> — طاقتك<br />تبدأ هنا
             </h2>
-            <p className="reveal-sub">طاقة فاخرة · خالٍ من السكر · ثلاث نكهات</p>
+            <p className="reveal-sub">٢٠٠ ملغ كافيين · خالٍ من السكر · ثلاث نكهات · ٢٥٠ مل</p>
             <button className="reveal-cta" onClick={() => scrollTo('.hero')}>اعثر على نكهتك</button>
           </div>
         </section>
