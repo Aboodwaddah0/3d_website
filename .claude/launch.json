@@ -5,8 +5,7 @@
       "name": "boss-3d",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
-      "port": 5173,
-      "autoPort": true
+      "port": 5174
     }
   ]
 }

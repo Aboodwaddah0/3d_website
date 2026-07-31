@@ -46,11 +46,18 @@ export default function EnergyLine() {
 
     const layout = () => {
       const w = window.innerWidth
-      const h = Math.max(
-        document.documentElement.scrollHeight,
-        document.body.scrollHeight,
-        document.documentElement.offsetHeight,
-      )
+      // Measure from main's in-flow children to avoid inflating scrollHeight
+      const main = wrap.parentElement
+      let h = 0
+      if (main) {
+        for (let i = 0; i < main.children.length; i++) {
+          const child = main.children[i] as HTMLElement
+          if (child === wrap) continue
+          const bottom = child.offsetTop + child.offsetHeight
+          if (bottom > h) h = bottom
+        }
+      }
+      if (h < 100) h = document.documentElement.scrollHeight
 
       wrap.style.height = `${h}px`
       svg.setAttribute('viewBox', `0 0 ${w} ${h}`)
@@ -120,7 +127,7 @@ export default function EnergyLine() {
           trigger: document.documentElement,
           start: 'top top',
           end: 'bottom bottom',
-          scrub: 0.5,
+          scrub: true,
           invalidateOnRefresh: true,
         },
       })

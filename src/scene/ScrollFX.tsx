@@ -78,7 +78,12 @@ export default function ScrollFX({ canRef }: { canRef: React.RefObject<THREE.Gro
       can.rotation.set(0, 0, 0)
       can.scale.setScalar(isMobile ? 0.85 : 1)
       camera.position.set(0, 0, camZ(6))
-      Object.assign(fx, { rings: 0, glow: 1, particleSize: 1, particleOpacity: 0.55, canFade: 1 })
+      Object.assign(fx, {
+        rings: 0, glow: 1, particleSize: 1, particleOpacity: 0.55, canFade: 1,
+        camRotX: 0, camRotY: 0, fov: 42,
+        hdrShift: 0, exposure: 1.05,
+        trailIntensity: 0.4, floorOpacity: 0.35,
+      })
 
       const seg = (t0: number, t1: number) => ({ duration: Math.max(0.0001, t1 - t0), ease: 'none' as const })
 
@@ -90,12 +95,12 @@ export default function ScrollFX({ canRef }: { canRef: React.RefObject<THREE.Gro
       // ---- Section 1 · hero: one elegant turn while drifting up ----
       tl.to(can.rotation, { y: TURN, ...seg(0, heroEnd) }, 0)
         .to(can.position, { y: isMobile ? 1.15 : 0.35, z: 0.9, ...seg(0, heroEnd) }, 0)
-        .to(fx, { glow: 0.85, ...seg(0, heroEnd) }, 0)
+        .to(fx, { glow: 0.85, hdrShift: 0, exposure: 1.05, trailIntensity: 0.4, floorOpacity: 0.35, ...seg(0, heroEnd) }, 0)
 
       // ---- into Section 2 · story: park beside the copy, label front ----
       tl.to(can.position, { x: storyX, y: storyY, z: 0.1, ...seg(heroEnd, storyTop) }, heroEnd)
         .to(can.scale, { x: storyScale, y: storyScale, z: storyScale, ...seg(heroEnd, storyTop) }, heroEnd)
-        .to(fx, { glow: 0.55, particleOpacity: 0.35, ...seg(heroEnd, storyTop) }, heroEnd)
+        .to(fx, { glow: 0.55, particleOpacity: 0.35, camRotX: -0.02, camRotY: 0.015, fov: 40, hdrShift: 0.15, exposure: 1.1, trailIntensity: 0.5, floorOpacity: 0.3, ...seg(heroEnd, storyTop) }, heroEnd)
         .to(camera.position, { z: camZ(5.7), ...seg(heroEnd, storyTop) }, heroEnd)
 
       // ---- through story: subtle drift — flavor swaps do their own spins ----
@@ -105,18 +110,18 @@ export default function ScrollFX({ canRef }: { canRef: React.RefObject<THREE.Gro
       tl.to(can.position, { x: ingX, y: ingY, z: -0.2, ...seg(storyEnd, ingTop) }, storyEnd)
         .to(can.scale, { x: ingScale, y: ingScale, z: ingScale, ...seg(storyEnd, ingTop) }, storyEnd)
         .to(can.rotation, { y: TURN * 3, ...seg(storyEnd, ingTop) }, storyEnd)
-        .to(fx, { rings: 1, particleSize: 1.5, particleOpacity: 0.8, glow: 0.7, ...seg(storyEnd, ingTop) }, storyEnd)
+        .to(fx, { rings: 1, particleSize: 1.5, particleOpacity: 0.8, glow: 0.7, camRotX: 0.015, camRotY: -0.02, fov: 38, hdrShift: 0.65, exposure: 1.15, trailIntensity: 1, floorOpacity: 0.45, ...seg(storyEnd, ingTop) }, storyEnd)
         .to(camera.position, { z: camZ(6.3), ...seg(storyEnd, ingTop) }, storyEnd)
 
       // ---- into Section 4 · brand: right rail beside the media column ----
       tl.to(can.position, { x: brandX, y: brandY, z: -1.1, ...seg(brandIn, brandTop) }, brandIn)
         .to(can.scale, { x: brandScale, y: brandScale, z: brandScale, ...seg(brandIn, brandTop) }, brandIn)
         .to(can.rotation, { y: TURN * 4, ...seg(brandIn, brandTop) }, brandIn)
-        .to(fx, { rings: 0, canFade: 0, particleSize: 1.2, particleOpacity: 0.45, ...seg(brandIn, brandTop) }, brandIn)
+        .to(fx, { rings: 0, canFade: 0, particleSize: 1.2, particleOpacity: 0.45, camRotX: 0, camRotY: 0, fov: 42, hdrShift: 0.35, exposure: 1.0, trailIntensity: 0.15, floorOpacity: 0, ...seg(brandIn, brandTop) }, brandIn)
         .to(camera.position, { z: camZ(6), ...seg(brandIn, brandTop) }, brandIn)
 
       // ---- Section 5 · reveal: the can stays hidden — the CTA owns the finale ----
-      tl.to(fx, { rings: 0, canFade: 0, particleSize: 1.6, particleOpacity: 0.8, ...seg(revealIn, revealTop) }, revealIn)
+      tl.to(fx, { rings: 0, canFade: 0, particleSize: 1.6, particleOpacity: 0.8, fov: 38, hdrShift: 0.1, exposure: 1.1, trailIntensity: 0.5, ...seg(revealIn, revealTop) }, revealIn)
         .to(camera.position, { x: 0, z: camZ(5.35), ...seg(revealIn, revealTop) }, revealIn)
 
       // pad the timeline out to the true end of the page so time maps 1:1

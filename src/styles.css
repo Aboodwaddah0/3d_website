@@ -100,6 +100,10 @@ body::-webkit-scrollbar-thumb {
   justify-content: space-between;
   padding: 22px clamp(20px, 4vw, 56px);
   mix-blend-mode: normal;
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  background: rgba(5, 5, 6, 0.45);
+  border-bottom: 1px solid rgba(245, 200, 76, 0.08);
 }
 
 .nav-logo {
@@ -318,8 +322,11 @@ section {
   width: min(190px, 40vw);
   border-radius: 18px;
   overflow: hidden;
-  border: 1px solid rgba(245, 200, 76, 0.18);
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(245, 200, 76, 0.15);
+  background: rgba(12, 12, 16, 0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .flavor-card img {
@@ -356,13 +363,15 @@ section {
 }
 
 .ing-item {
-  border: 1px solid rgba(244, 242, 236, 0.1);
-  background: rgba(12, 12, 16, 0.6);
-  backdrop-filter: blur(8px);
+  border: 1px solid rgba(244, 242, 236, 0.08);
+  background: rgba(12, 12, 16, 0.4);
+  backdrop-filter: blur(16px) saturate(1.3);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
   border-radius: 20px;
   padding: 30px 26px;
   text-align: right;
-  transition: border-color 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .ing-item:hover {
@@ -410,6 +419,7 @@ section {
   margin: 0 auto;
   border-radius: 28px;
   overflow: hidden;
+  border: 1px solid rgba(245, 200, 76, 0.1);
   box-shadow: 0 40px 120px rgba(0, 0, 0, 0.7), 0 0 80px rgba(245, 200, 76, 0.08);
   position: relative;
 }
@@ -443,6 +453,10 @@ section {
   border-radius: 24px;
   overflow: hidden;
   border: 1px solid rgba(244, 242, 236, 0.08);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  background: rgba(12, 12, 16, 0.3);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .brand-card img {
@@ -576,9 +590,11 @@ footer .foot-logo b {
   top: 0;
   left: 0;
   width: 100%;
+  height: 100%;
   pointer-events: none;
   z-index: 3;
   overflow: visible;
+  clip: rect(auto, auto, auto, auto);
 }
 
 .energy-svg {
@@ -588,6 +604,180 @@ footer .foot-logo b {
   width: 100%;
   height: 100%;
   overflow: visible;
+}
+
+/* ---------- preloader ---------- */
+
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preloader-content {
+  text-align: center;
+}
+
+.preloader-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.preloader-crown {
+  font-size: 38px;
+  color: var(--gold);
+  animation: pulse-crown 1.5s ease-in-out infinite;
+}
+
+.preloader-brand {
+  font-family: var(--font-latin);
+  font-size: 54px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.06em;
+  direction: ltr;
+}
+
+.preloader-brand b {
+  color: var(--gold);
+}
+
+.preloader-sub {
+  margin-top: 10px;
+  font-family: var(--font-latin);
+  font-size: 12px;
+  letter-spacing: 0.32em;
+  color: var(--text-dim);
+}
+
+.preloader-bar {
+  margin: 34px auto 0;
+  width: 160px;
+  height: 2px;
+  background: rgba(245, 200, 76, 0.12);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.preloader-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), #ffe9a3);
+  transform-origin: left;
+  transform: scaleX(0);
+  border-radius: 2px;
+}
+
+.preloader-pct {
+  margin-top: 14px;
+  font-family: var(--font-latin);
+  font-size: 13px;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+}
+
+@keyframes pulse-crown {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+/* ---------- flavor picker ---------- */
+
+.flavor-picker {
+  position: fixed;
+  right: clamp(16px, 3vw, 40px);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 8;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+.flavor-picker.fp-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.fp-dot {
+  position: relative;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--fp-accent);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.fp-dot:hover {
+  transform: scale(1.3);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.fp-active {
+  transform: scale(1.4);
+  border-color: var(--fp-accent);
+  box-shadow: 0 0 14px var(--fp-accent);
+}
+
+.fp-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1px solid var(--fp-accent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.fp-active .fp-ring {
+  opacity: 0.5;
+  animation: fp-pulse 2s ease-in-out infinite;
+}
+
+.fp-label {
+  position: absolute;
+  right: calc(100% + 14px);
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-size: 12px;
+  color: var(--text);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.fp-dot:hover .fp-label {
+  opacity: 1;
+}
+
+@keyframes fp-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.6); opacity: 0; }
+}
+
+/* ---------- split text ---------- */
+
+.split-ch {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+/* ---------- magnetic ---------- */
+
+.magnetic {
+  will-change: transform;
 }
 
 /* ---------- responsive ---------- */
@@ -619,5 +809,19 @@ footer .foot-logo b {
     margin: 38vh 0 12vh;
     grid-template-columns: 1fr;
     width: 100%;
+  }
+
+  .flavor-picker {
+    right: 10px;
+    gap: 16px;
+  }
+
+  .fp-dot {
+    width: 12px;
+    height: 12px;
+  }
+
+  .fp-label {
+    display: none;
   }
 }

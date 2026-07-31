@@ -7,4 +7,11 @@ export const fx = {
   particleOpacity: 0.55,
   canFade: 1,
   screens: 0,
+  camRotX: 0,
+  camRotY: 0,
+  fov: 42,
+  hdrShift: 0,
+  exposure: 1.05,
+  trailIntensity: 0.4,
+  floorOpacity: 0.35,
 }

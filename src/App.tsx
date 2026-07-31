@@ -1,9 +1,10 @@
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Lenis from 'lenis'
 import Experience from './scene/Experience'
 import EnergyLine from './scene/EnergyLine'
+import FlavorPicker from './FlavorPicker'
 import { FLAVORS, sceneStore, type FlavorId } from './store'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -15,10 +16,64 @@ const INGREDIENTS = [
   { num: '٠٤', name: 'خالٍ من السكر', desc: 'محلّى بالسكرالوز — صفر سعرات من السكر، مع الحفاظ على الطعم الكامل.' },
 ]
 
+function splitWords(selector: string) {
+  document.querySelectorAll<HTMLElement>(selector).forEach(el => {
+    if (el.dataset.split) return
+    el.dataset.split = '1'
+    const parts = el.innerHTML.split(/(<br\s*\/?>)/gi)
+    el.innerHTML = ''
+    parts.forEach(part => {
+      if (/<br\s*\/?>/i.test(part)) {
+        el.appendChild(document.createElement('br'))
+      } else {
+        const words = part.split(/(\s+)/)
+        words.forEach(w => {
+          if (!w) return
+          const span = document.createElement('span')
+          span.className = 'split-ch'
+          span.style.display = 'inline-block'
+          span.textContent = w
+          if (/^\s+$/.test(w)) span.style.whiteSpace = 'pre'
+          el.appendChild(span)
+        })
+      }
+    })
+  })
+}
+
+let preloaderDone = false
+
 export default function App() {
   const heroVideoRef = useRef<HTMLVideoElement>(null)
+  const introFired = useRef(false)
+
+  const triggerIntro = useCallback(() => {
+    if (introFired.current) return
+    introFired.current = true
+    gsap.fromTo(
+      '.hero-title .ch',
+      { yPercent: 110, opacity: 0 },
+      { yPercent: 0, opacity: 1, duration: 1.2, ease: 'power4.out', stagger: 0.07, delay: 0.1 },
+    )
+    gsap.fromTo(
+      '.hero-tag, .hero-scroll-hint',
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, duration: 1.1, ease: 'power3.out', stagger: 0.15, delay: 0.6 },
+    )
+    gsap.fromTo('.nav', { y: -60, opacity: 0 }, { y: 0, opacity: 1, duration: 1, ease: 'power3.out', delay: 0.1 })
+  }, [])
 
   useEffect(() => {
+    if (preloaderDone) { triggerIntro(); return }
+    const onDone = () => { preloaderDone = true; triggerIntro() }
+    if (!document.getElementById('preloader')) { onDone(); return }
+    window.addEventListener('preloader-done', onDone, { once: true })
+    return () => { window.removeEventListener('preloader-done', onDone) }
+  }, [triggerIntro])
+
+  useEffect(() => {
+    splitWords('.story .headline, .ingredients .headline, .brand .headline')
+
     const lenis = new Lenis({ duration: 1.15, smoothWheel: true })
     lenis.on('scroll', ScrollTrigger.update)
     const raf = (time: number) => lenis.raf(time * 1000)
@@ -26,20 +81,6 @@ export default function App() {
     gsap.ticker.lagSmoothing(0)
 
     const ctx = gsap.context(() => {
-      // ----- hero intro (plays on load) -----
-      gsap.fromTo(
-        '.hero-title .ch',
-        { yPercent: 110, opacity: 0 },
-        { yPercent: 0, opacity: 1, duration: 1.2, ease: 'power4.out', stagger: 0.07, delay: 0.35 },
-      )
-      gsap.fromTo(
-        '.hero-tag, .hero-scroll-hint',
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 1.1, ease: 'power3.out', stagger: 0.15, delay: 1.1 },
-      )
-      gsap.fromTo('.nav', { y: -60, opacity: 0 }, { y: 0, opacity: 1, duration: 1, ease: 'power3.out', delay: 0.2 })
-
-      // ----- hero text parallax out on scroll -----
       gsap.to('.hero-inner', {
         opacity: 0,
         yPercent: -18,
@@ -47,14 +88,12 @@ export default function App() {
         scrollTrigger: { trigger: '.hero', start: '28% top', end: '75% top', scrub: true },
       })
 
-      // ----- fixed hero video fades away as the story begins -----
       gsap.to('.hero-video-wrap', {
         opacity: 0,
         ease: 'none',
         scrollTrigger: { trigger: '#story', start: 'top 90%', end: 'top 25%', scrub: true },
       })
 
-      // ----- generic text reveals -----
       gsap.utils.toArray<HTMLElement>('[data-reveal]').forEach((el) => {
         gsap.fromTo(
           el,
@@ -69,11 +108,25 @@ export default function App() {
         )
       })
 
-      // ----- flavor blocks: parallax card + flavor switching for the 3D can -----
+      document.querySelectorAll<HTMLElement>('.headline[data-split]').forEach(el => {
+        const chars = el.querySelectorAll('.split-ch')
+        gsap.fromTo(
+          chars,
+          { opacity: 0, y: 60, rotateX: -90, transformOrigin: 'center bottom' },
+          {
+            opacity: 1,
+            y: 0,
+            rotateX: 0,
+            duration: 0.9,
+            ease: 'power3.out',
+            stagger: 0.025,
+            scrollTrigger: { trigger: el, start: 'top 82%', toggleActions: 'play none none reverse' },
+          },
+        )
+      })
+
       gsap.utils.toArray<HTMLElement>('.flavor-block').forEach((block) => {
         const flavor = Number(block.dataset.flavor) as FlavorId
-        // fire early (as the block enters the viewport) so the can has already
-        // swapped by the time the copy is in front of the reader
         ScrollTrigger.create({
           trigger: block,
           start: 'top 50%',
@@ -96,7 +149,16 @@ export default function App() {
         }
       })
 
-      // ----- brand video: Apple-style scale up -----
+      ScrollTrigger.create({
+        trigger: '#story',
+        start: 'top 70%',
+        end: 'bottom 30%',
+        onEnter: () => document.querySelector('.flavor-picker')?.classList.add('fp-visible'),
+        onLeave: () => document.querySelector('.flavor-picker')?.classList.remove('fp-visible'),
+        onEnterBack: () => document.querySelector('.flavor-picker')?.classList.add('fp-visible'),
+        onLeaveBack: () => document.querySelector('.flavor-picker')?.classList.remove('fp-visible'),
+      })
+
       gsap.fromTo(
         '.brand-video-frame',
         { scale: 0.72, opacity: 0.4, borderRadius: 48 },
@@ -109,7 +171,6 @@ export default function App() {
         },
       )
 
-      // ----- brand gallery parallax -----
       gsap.utils.toArray<HTMLElement>('.brand-card img').forEach((img, i) => {
         gsap.fromTo(
           img,
@@ -122,7 +183,6 @@ export default function App() {
         )
       })
 
-      // ----- final reveal text -----
       const revealTl = gsap.timeline({
         scrollTrigger: { trigger: '.reveal', start: '30% bottom', end: '70% bottom', scrub: true },
       })
@@ -131,13 +191,32 @@ export default function App() {
         .fromTo('.reveal-sub, .reveal-cta', { opacity: 0, y: 50 }, { opacity: 1, y: 0, ease: 'none', stagger: 0.12 }, '<0.25')
     })
 
-    // Lazy-play the hero video once it can render frames.
+    const handlers = new Map<HTMLElement, { move: (e: MouseEvent) => void; leave: () => void }>()
+    document.querySelectorAll<HTMLElement>('.magnetic').forEach(btn => {
+      const move = (e: MouseEvent) => {
+        const r = btn.getBoundingClientRect()
+        const dx = e.clientX - (r.left + r.width / 2)
+        const dy = e.clientY - (r.top + r.height / 2)
+        gsap.to(btn, { x: dx * 0.35, y: dy * 0.35, duration: 0.3, ease: 'power2.out' })
+      }
+      const leave = () => {
+        gsap.to(btn, { x: 0, y: 0, duration: 0.6, ease: 'elastic.out(1, 0.3)' })
+      }
+      btn.addEventListener('mousemove', move)
+      btn.addEventListener('mouseleave', leave)
+      handlers.set(btn, { move, leave })
+    })
+
     heroVideoRef.current?.play().catch(() => {})
 
     return () => {
       ctx.revert()
       gsap.ticker.remove(raf)
       lenis.destroy()
+      handlers.forEach(({ move, leave }, btn) => {
+        btn.removeEventListener('mousemove', move)
+        btn.removeEventListener('mouseleave', leave)
+      })
     }
   }, [])
 
@@ -148,12 +227,10 @@ export default function App() {
 
   return (
     <>
-      {/* Fixed cinematic video backdrop (Section 1) */}
       <div className="hero-video-wrap">
         <video ref={heroVideoRef} src="/assets/hero.mp4" muted loop playsInline autoPlay preload="auto" />
       </div>
 
-      {/* Fixed WebGL layer — the BosS can lives here across every section */}
       <div className="canvas-wrap">
         <Experience />
       </div>
@@ -162,13 +239,14 @@ export default function App() {
         <a className="nav-logo" href="#" onClick={(e) => { e.preventDefault(); scrollTo('.hero') }}>
           <span className="crown">♛</span><span>Bos<b>S</b></span>
         </a>
-        <button className="nav-cta" onClick={() => scrollTo('.reveal')}>احصل على BosS</button>
+        <button className="nav-cta magnetic" onClick={() => scrollTo('.reveal')}>احصل على BosS</button>
       </nav>
+
+      <FlavorPicker />
 
       <main>
         <EnergyLine />
 
-        {/* -------- Section 1 · Hero -------- */}
         <section className="hero" id="hero">
           <div className="hero-inner">
             <h1 className="hero-title" aria-label="BosS">
@@ -181,11 +259,10 @@ export default function App() {
           </div>
         </section>
 
-        {/* -------- Section 2 · Product story -------- */}
         <section className="story" id="story">
           <div className="story-head">
             <p className="kicker" data-reveal>المجموعة</p>
-            <h2 className="headline" data-reveal>ثلاث نكهات.<br />تركيبة واحدة.</h2>
+            <h2 className="headline">ثلاث نكهات.<br />تركيبة واحدة.</h2>
             <p className="body-copy" data-reveal style={{ marginTop: 26 }}>
               كل علبة BosS تحتوي على ٢٠٠ ملغ كافيين طبيعي، فيتامينات ب المركبة،
               وخالية من السكر — مصممة لتمنحك طاقة مستمرة بدون انهيار.
@@ -207,11 +284,10 @@ export default function App() {
           ))}
         </section>
 
-        {/* -------- Section 3 · Ingredients & energy -------- */}
         <section className="ingredients" id="ingredients">
           <div className="ingredients-head">
             <p className="kicker" data-reveal>داخل العلبة</p>
-            <h2 className="headline" data-reveal>طاقة<br />مهندسة</h2>
+            <h2 className="headline">طاقة<br />مهندسة</h2>
             <p className="body-copy" data-reveal style={{ margin: '26px auto 0' }}>
               مكونات مختارة لدعم الأداء الذهني والبدني — كافيين طبيعي،
               غوارانا، جنسنغ، وفيتامينات ب، بدون سكر مضاف.
@@ -228,11 +304,10 @@ export default function App() {
           </div>
         </section>
 
-        {/* -------- Section 4 · Brand experience -------- */}
         <section className="brand" id="brand">
           <div className="brand-head">
             <p className="kicker" data-reveal>التجربة</p>
-            <h2 className="headline" data-reveal>امتلك<br />الليل</h2>
+            <h2 className="headline">امتلك<br />الليل</h2>
           </div>
 
           <div className="brand-video-frame">
@@ -252,14 +327,13 @@ export default function App() {
           </div>
         </section>
 
-        {/* -------- Section 5 · Final reveal -------- */}
         <section className="reveal" id="reveal">
           <div className="reveal-sticky">
             <h2 className="reveal-title">
               <span className="gold">BosS</span> — طاقتك<br />تبدأ هنا
             </h2>
             <p className="reveal-sub">٢٠٠ ملغ كافيين · خالٍ من السكر · ثلاث نكهات · ٢٥٠ مل</p>
-            <button className="reveal-cta" onClick={() => scrollTo('.hero')}>اعثر على نكهتك</button>
+            <button className="reveal-cta magnetic" onClick={() => scrollTo('.hero')}>اعثر على نكهتك</button>
           </div>
         </section>
       </main>

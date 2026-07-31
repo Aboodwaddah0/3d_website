@@ -13,6 +13,42 @@
     />
   </head>
   <body>
+    <div id="preloader" style="position:fixed;inset:0;z-index:100;background:#050506;display:flex;align-items:center;justify-content:center">
+      <div style="text-align:center">
+        <div class="preloader-logo" style="display:flex;align-items:center;justify-content:center;gap:14px">
+          <span style="font-size:38px;color:#f5c84c;animation:pulse-crown 1.5s ease-in-out infinite">♛</span>
+          <span style="font-family:'Ubuntu',system-ui;font-size:54px;font-weight:700;color:#f4f2ec;letter-spacing:.06em;direction:ltr">Bos<b style="color:#f5c84c">S</b></span>
+        </div>
+        <p class="preloader-sub" style="margin-top:10px;font-family:'Ubuntu',system-ui;font-size:12px;letter-spacing:.32em;color:rgba(244,242,236,.62)">PREMIUM ENERGY</p>
+        <div style="margin:34px auto 0;width:160px;height:2px;background:rgba(245,200,76,.12);border-radius:2px;overflow:hidden">
+          <div id="preloader-bar" style="height:100%;background:linear-gradient(90deg,#f5c84c,#ffe9a3);transform-origin:left;transform:scaleX(0);border-radius:2px"></div>
+        </div>
+        <p id="preloader-pct" style="margin-top:14px;font-family:'Ubuntu',system-ui;font-size:13px;color:rgba(244,242,236,.62);letter-spacing:.08em">0%</p>
+      </div>
+    </div>
+    <style>@keyframes pulse-crown{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.1)}}</style>
+    <script>
+    (function(){
+      var wrap=document.getElementById('preloader'),
+          bar=document.getElementById('preloader-bar'),
+          pct=document.getElementById('preloader-pct');
+      if(!wrap||!bar||!pct){return}
+      var start=Date.now(),dur=2000;
+      var iv=setInterval(function(){
+        var p=Math.min((Date.now()-start)/dur,1);
+        var ep=p<0.5?2*p*p:(1-Math.pow(-2*p+2,2)/2);
+        bar.style.transform='scaleX('+ep+')';
+        pct.textContent=Math.round(ep*100)+'%';
+        if(p>=1){clearInterval(iv);setTimeout(exit,500)}
+      },16);
+      function exit(){
+        wrap.style.transition='transform 0.9s cubic-bezier(.4,0,.2,1)';
+        wrap.style.transform='translateY(-100%)';
+        window.dispatchEvent(new Event('preloader-done'));
+        setTimeout(function(){wrap.style.display='none'},950);
+      }
+    })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
